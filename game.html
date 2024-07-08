@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Minecraft</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+
+        body {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple Minecraft</h1>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const tileSize = 20;
+        const worldWidth = 40;
+        const worldHeight = 30;
+
+        let player = {
+            x: 10,
+            y: 10,
+            direction: "right" // default direction
+        };
+
+
+        let world = [];
+
+        function generateWorld() {
+            for (let y = 0; y < worldHeight; y++) {
+                world[y] = [];
+                for (let x = 0; x < worldWidth; x++) {
+                    if (y > 20) {
+                        world[y][x] = "dirt";
+                    } else if (y > 15) {
+                        world[y][x] = "grass";
+                    } else {
+                        world[y][x] = null;
+                    }
+                }
+            }
+        }
+
+        function drawWorld() {
+            for (let y = 0; y < worldHeight; y++) {
+                for (let x = 0; x < worldWidth; x++) {
+                    if (world[y][x] === "grass") {
+                        ctx.fillStyle = "green";
+                    } else if (world[y][x] === "dirt") {
+                        ctx.fillStyle = "brown";
+                    } else {
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+
+        function drawPlayer() {
+            // Draw the player
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+
+            // Draw the semi-transparent guide symbol
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Semi-transparent red color
+            switch (player.direction) {
+                case "up":
+                    if (player.y > 0) {
+                        ctx.fillRect(player.x * tileSize, (player.y - 1) * tileSize, tileSize, tileSize);
+                    }
+                    break;
+                case "down":
+                    if (player.y < worldHeight - 1) {
+                        ctx.fillRect(player.x * tileSize, (player.y + 1) * tileSize, tileSize, tileSize);
+                    }
+                    break;
+                case "left":
+                    if (player.x > 0) {
+                        ctx.fillRect((player.x - 1) * tileSize, player.y * tileSize, tileSize, tileSize);
+                    }
+                    break;
+                case "right":
+                    if (player.x < worldWidth - 1) {
+                        ctx.fillRect((player.x + 1) * tileSize, player.y * tileSize, tileSize, tileSize);
+                    }
+                    break;
+            }
+        }
+
+
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWorld();
+            drawPlayer();
+        }
+
+        function movePlayer(dx, dy, direction) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            if (newX >= 0 && newX < worldWidth && newY >= 0 && newY < worldHeight && !world[newY][newX]) {
+                player.x = newX;
+                player.y = newY;
+            }
+            player.direction = direction; // update direction
+            update();
+        }
+
+        function breakBlock() {
+            let targetX = player.x;
+            let targetY = player.y;
+            switch (player.direction) {
+                case "up":
+                    targetY -= 1;
+                    break;
+                case "down":
+                    targetY += 1;
+                    break;
+                case "left":
+                    targetX -= 1;
+                    break;
+                case "right":
+                    targetX += 1;
+                    break;
+            }
+            if (targetX >= 0 && targetX < worldWidth && targetY >= 0 && targetY < worldHeight && world[targetY][targetX]) {
+                world[targetY][targetX] = null;
+                update();
+            }
+        }
+
+        function placeBlock() {
+            let targetX = player.x;
+            let targetY = player.y;
+            switch (player.direction) {
+                case "up":
+                    targetY -= 1;
+                    break;
+                case "down":
+                    targetY += 1;
+                    break;
+                case "left":
+                    targetX -= 1;
+                    break;
+                case "right":
+                    targetX += 1;
+                    break;
+            }
+            if (targetX >= 0 && targetX < worldWidth && targetY >= 0 && targetY < worldHeight && !world[targetY][targetX]) {
+                world[targetY][targetX] = "grass";
+                update();
+            }
+        }
+
+        document.addEventListener("keydown", (e) => {
+            switch (e.key) {
+                case "ArrowUp":
+                    movePlayer(0, -1, "up");
+                    break;
+                case "ArrowDown":
+                    movePlayer(0, 1, "down");
+                    break;
+                case "ArrowLeft":
+                    movePlayer(-1, 0, "left");
+                    break;
+                case "ArrowRight":
+                    movePlayer(1, 0, "right");
+                    break;
+            }
+        });
+
+
+        document.addEventListener("keypress", (e) => {
+            if (e.key === "x") { // Press 'x' to break a block
+                breakBlock();
+            }
+            if (e.key === "z") { // Press 'z' to place a block
+                placeBlock();
+            }
+        });
+
+
+        generateWorld();
+        update();
+    </script>
+</body>
+
+</html>
