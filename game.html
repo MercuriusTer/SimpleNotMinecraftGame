@@ -19,6 +19,12 @@
 <body>
     <h1>Simple Minecraft</h1>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="instructions">
+        <p>Use the arrow keys to move the player.</p>
+        <p>Press 'z' to place a block in front of you.</p>
+        <p>Press 'x' to break a block in front of you.</p>
+        <p>The gray semi-transparent square indicates the direction you are facing.</p>
+    </div>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
